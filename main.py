@@ -1,110 +1,16 @@
-import os
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from pypdf import PdfReader
-from docx import Document
-from pptx import Presentation
-import networkx as nx
-import re
-import ollama
+import subprocess
+import time
 
-DOCUMENTS_DIR = os.path.join(os.path.dirname(__file__), "documents")
+# Start Flask API (Backend)
+backend_process = subprocess.Popen(["python", "backend.py"])
 
-# Extract text from different file formats
-def extract_text(file_name):
-    file_path = os.path.join(DOCUMENTS_DIR, file_name)
-    text = ""
+# Wait for API to start (optional delay)
+time.sleep(3)  
 
-    if not os.path.exists(file_path):
-        return text
+# Start Streamlit UI (Frontend)
+frontend_process = subprocess.Popen(["streamlit", "run", "frontend.py"])
 
-    if file_path.endswith(".pdf"):
-        reader = PdfReader(file_path)
-        text = "\n".join([page.extract_text() or "" for page in reader.pages])
-    elif file_path.endswith(".docx"):
-        doc = Document(file_path)
-        text = "\n".join([para.text for para in doc.paragraphs])
-    elif file_path.endswith(".pptx"):
-        ppt = Presentation(file_path)
-        text = "\n".join([shape.text for slide in ppt.slides for shape in slide.shapes if hasattr(shape, "text")])
-    elif file_path.endswith(".txt"):
-        with open(file_path, "r", encoding="utf-8") as f:
-            text = f.read()
-
-    return text.strip()
-
-# Load all documents
-def load_documents():
-    docs = {}
-    for file_name in os.listdir(DOCUMENTS_DIR):
-        docs[file_name] = extract_text(file_name)
-    return docs
-
-# TextRank-based Summarization
-def summarize_text(text, sentence_limit=3):
-    sentences = re.split(r"(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s", text)
-    if len(sentences) <= sentence_limit:
-        return text  # No need to summarize if it's short
-
-    # Build similarity matrix
-    vectorizer = TfidfVectorizer()
-    sentence_vectors = vectorizer.fit_transform(sentences)
-    similarity_matrix = np.dot(sentence_vectors, sentence_vectors.T).toarray()
-
-    # Graph-based ranking (TextRank)
-    nx_graph = nx.from_numpy_array(similarity_matrix)
-    scores = nx.pagerank(nx_graph)
-    ranked_sentences = sorted(((scores[i], s) for i, s in enumerate(sentences)), reverse=True)
-
-    summary = " ".join([s[1] for s in ranked_sentences[:sentence_limit]])
-    return summary
-
-# AI-powered insights using Gemma2:2B
-def generate_ai_insights(text):
-    prompt = f"Summarize the key takeaways from the following document and suggest its relevance: {text[:1000]}..."
-    response = ollama.chat(model="gemma2:2b", messages=[{"role": "user", "content": prompt}])
-    return response["message"]["content"]
-
-# TF-IDF Search + Context-Aware Recommendations
-def search_documents(query, k=3):
-    docs = load_documents()
-    file_names = list(docs.keys())
-    doc_texts = list(docs.values())
-
-    if not doc_texts:
-        return [{"file": "No relevant documents found.", "summary": "", "ai_insights": ""}]
-
-    vectorizer = TfidfVectorizer(stop_words='english')
-    doc_vectors = vectorizer.fit_transform(doc_texts)
-    query_vector = vectorizer.transform([query])
-
-    similarities = np.dot(doc_vectors, query_vector.T).toarray().flatten()
-    sorted_indices = np.argsort(similarities)[::-1]
-
-    results = []
-    relevant_keywords = set(query.lower().split())
-
-    for idx in sorted_indices[:k]:
-        if similarities[idx] > 0:
-            file_name = file_names[idx]
-            text = doc_texts[idx]
-            summary = summarize_text(text)
-            ai_insights = generate_ai_insights(text)
-
-            results.append({
-                "file": file_name,
-                "summary": summary,
-                "ai_insights": ai_insights
-            })
-
-    return results if results else [{"file": "No relevant documents found.", "summary": "", "ai_insights": ""}]
-
-# Run search
-if __name__ == "__main__":
-    query = input("Enter search query: ")
-    results = search_documents(query)
-
-    print("\n🔍 **Search Results:**\n")
-    for i, result in enumerate(results):
-        print(f"{i+1}. **File:** {result['file']}\n   **Summary:** {result['summary']}\n   **AI Insights:** {result['ai_insights']}\n")
+# Keep both running
+backend_process.wait()
+frontend_process.wait()
 
