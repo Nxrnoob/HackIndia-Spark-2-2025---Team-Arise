@@ -1,0 +1,8 @@
+numpy
+scikit-learn
+networkx
+pypdf
+python-docx
+python-pptx
+ollama
+
