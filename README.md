@@ -22,6 +22,12 @@ This AI-powered assistant helps employees quickly find, summarize, and explore d
     ```sh
    pip install -r requirements.txt
 
+3. Install ollama as per you Operating system.
+    ```sh
+   ollama run gemma2:2b
+
+   Use any desired model of your choice and make sure to replace the current one in the code.
+
 ### Note: Make sure to create a folder named Document or Any desired name (needs change in code) and paste all the documents in it.
 
 3. Run the assistant:
@@ -34,7 +40,7 @@ This AI-powered assistant helps employees quickly find, summarize, and explore d
     Extracts text from multiple file formats.
     Uses TF-IDF for smart search & ranking.
     Implements TextRank for AI-powered summaries.
-    Gemma2:2B (via Ollama) provides deep insights & recommendations.
+    Gemma2:2B (via Ollama , so any model can be used) provides deep insights & recommendations.
 
 📂 Supported Formats
 
