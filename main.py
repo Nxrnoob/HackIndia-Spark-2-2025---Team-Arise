@@ -6,6 +6,7 @@ from docx import Document
 from pptx import Presentation
 import networkx as nx
 import re
+import ollama
 
 DOCUMENTS_DIR = os.path.join(os.path.dirname(__file__), "documents")
 
@@ -58,6 +59,12 @@ def summarize_text(text, sentence_limit=3):
     summary = " ".join([s[1] for s in ranked_sentences[:sentence_limit]])
     return summary
 
+# AI-powered insights using Gemma2:2B
+def generate_ai_insights(text):
+    prompt = f"Summarize the key takeaways from the following document and suggest its relevance: {text[:1000]}..."
+    response = ollama.chat(model="gemma2:2b", messages=[{"role": "user", "content": prompt}])
+    return response["message"]["content"]
+
 # TF-IDF Search + Context-Aware Recommendations
 def search_documents(query, k=3):
     docs = load_documents()
@@ -65,7 +72,7 @@ def search_documents(query, k=3):
     doc_texts = list(docs.values())
 
     if not doc_texts:
-        return [{"file": "No relevant documents found.", "summary": ""}]
+        return [{"file": "No relevant documents found.", "summary": "", "ai_insights": ""}]
 
     vectorizer = TfidfVectorizer(stop_words='english')
     doc_vectors = vectorizer.fit_transform(doc_texts)
@@ -82,30 +89,15 @@ def search_documents(query, k=3):
             file_name = file_names[idx]
             text = doc_texts[idx]
             summary = summarize_text(text)
-
-            boost_score = 5 if "aiml" in file_name.lower() else 0
-            total_score = similarities[idx] + boost_score
+            ai_insights = generate_ai_insights(text)
 
             results.append({
                 "file": file_name,
                 "summary": summary,
-                "score": total_score
+                "ai_insights": ai_insights
             })
 
-    # Suggest Related Documents
-    if results:
-        main_doc_keywords = set(docs[results[0]["file"]].lower().split())
-        related_docs = []
-        for fname, text in docs.items():
-            if fname != results[0]["file"]:
-                overlap = len(main_doc_keywords.intersection(set(text.lower().split())))
-                if overlap > 20:  # Adjust threshold based on content size
-                    related_docs.append(fname)
-
-        if related_docs:
-            results.append({"file": "Related Documents:", "summary": ", ".join(related_docs)})
-
-    return results if results else [{"file": "No relevant documents found.", "summary": ""}]
+    return results if results else [{"file": "No relevant documents found.", "summary": "", "ai_insights": ""}]
 
 # Run search
 if __name__ == "__main__":
@@ -114,5 +106,5 @@ if __name__ == "__main__":
 
     print("\n🔍 **Search Results:**\n")
     for i, result in enumerate(results):
-        print(f"{i+1}. **File:** {result['file']}\n   **Summary:** {result['summary']}\n")
+        print(f"{i+1}. **File:** {result['file']}\n   **Summary:** {result['summary']}\n   **AI Insights:** {result['ai_insights']}\n")
 
