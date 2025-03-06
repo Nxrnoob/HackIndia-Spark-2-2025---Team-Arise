@@ -15,7 +15,8 @@ This AI-powered document search assistant allows users to quickly find, summariz
 
 ## 🔥 Features  
 - **Smart Search**: Understands natural language queries, not just keywords.  
-- **AI-Powered Summaries**: Extracts key insights from lengthy documents.  
+- **AI-Powered Summaries**: Extracts key insights from lengthy documents.i
+- File Upload Support (New!): Now you can upload your own text files, and they will be included in search results.
 - **Context-Aware Recommendations**: Suggests related documents.  
 - **Multi-Format Support**: Works with PDFs, Word docs, PPTs, and text files.  
 - **Fast & Secure**: Ensures quick retrieval while keeping data private.  
