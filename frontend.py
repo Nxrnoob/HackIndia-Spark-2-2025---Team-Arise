@@ -49,7 +49,7 @@ col1, col2 = st.columns([4, 1])
 search_clicked = col1.button("🔍 Search")
 stop_clicked = col2.button("🛑 Stop")
 
-uploaded_file = st.file_uploader("📂 Upload a document (PDF, DOCX, PPTX)", type=["pdf", "docx", "pptx"])
+uploaded_file = st.file_uploader("📂 Upload a document (PDF, DOCX, PPTX, TXT)", type=["pdf", "docx", "pptx", "txt"])
 
 if uploaded_file:
     with st.spinner("Uploading file..."):
