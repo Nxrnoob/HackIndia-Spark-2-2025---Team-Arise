@@ -32,7 +32,7 @@ st.markdown("""
     <div class="footer">🚀 Made with ❤️ by Team Arise at HackIndia 2025</div>
 """, unsafe_allow_html=True)
 
-st.title("📄 AI-Powered Document Search & Upload")
+st.title("📄 AI-Powered Document Search & Retrieval Assistant ")
 
 if "results" not in st.session_state:
     st.session_state.results = []
