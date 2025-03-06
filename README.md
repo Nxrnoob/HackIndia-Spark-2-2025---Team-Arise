@@ -60,10 +60,10 @@ This AI-powered document search assistant allows users to quickly find, summariz
 
 ## 🧠 How It Works
 
-- Extracts text from multiple file formats.
-- Uses TF-IDF for smart search & ranking.
-- Implements TextRank for AI-powered summaries.
-- Gemma2:2B (via Ollama , so any model can be used) provides deep insights & recommendations.
+- Extracts text from PDFs, Word, and PowerPoint files.
+- Uses AI (Gemma2:2B via Ollama) to rank document relevance based on meaning, not word frequency.
+- Generates AI-powered summaries tailored to the search query.
+- Any Ollama-supported model can be used, making it flexible and customizable.
 
 ## 📂 Supported Formats
 
